@@ -5226,7 +5226,7 @@ int PlayerFunctions::luaPlayerCastSpell(lua_State* L) {
 	std::string wordsToProcess = words;
 	// Usar el método playerSaySpell de Spells que maneja la lógica de casteo de hechizos
 	TalkActionResult_t result = g_spells().playerSaySpell(player, wordsToProcess);
-		// Si el resultado es TALKACTION_BREAK, el hechizo se lanzó correctamente
+	// Si el resultado es TALKACTION_BREAK, el hechizo se lanzó correctamente
 	if (result == TALKACTION_BREAK) {
 		// En el caso de éxito, el juego procesa el texto del hechizo
 		player->saySpell(TALKTYPE_SPELL_USE, wordsToProcess, false);
