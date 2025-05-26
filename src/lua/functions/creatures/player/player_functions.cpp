@@ -62,6 +62,7 @@ void PlayerFunctions::init(lua_State* L) {
 	Lua::registerMethod(L, "Player", "getCharmChance", PlayerFunctions::luaPlayerGetCharmChance);
 	Lua::registerMethod(L, "Player", "resetOldCharms", PlayerFunctions::luaPlayerResetOldCharms);
 	Lua::registerMethod(L, "Player", "isPlayer", PlayerFunctions::luaPlayerIsPlayer);
+	Lua::registerMethod(L, "Player", "castSpell", PlayerFunctions::luaPlayerCastSpell);
 
 	Lua::registerMethod(L, "Player", "getGuid", PlayerFunctions::luaPlayerGetGuid);
 	Lua::registerMethod(L, "Player", "getIp", PlayerFunctions::luaPlayerGetIp);
@@ -5203,6 +5204,35 @@ int PlayerFunctions::luaPlayerSetVirtue(lua_State* L) {
 	} else {
 		player->setVirtue(VIRTUE_NONE);
 		lua_pushboolean(L, false);
+	}
+
+	return 1;
+}
+
+int PlayerFunctions::luaPlayerCastSpell(lua_State* L) {
+	// player:castSpell(words)
+	const auto &player = Lua::getUserdataShared<Player>(L, 1, "Player");
+	if (!player) {
+		Lua::pushBoolean(L, false);
+		return 1;
+	}
+
+	const std::string words = Lua::getString(L, 2);
+	if (words.empty()) {
+		Lua::pushBoolean(L, false);
+		return 1;
+	}
+
+	std::string wordsToProcess = words;
+	// Usar el método playerSaySpell de Spells que maneja la lógica de casteo de hechizos
+	TalkActionResult_t result = g_spells().playerSaySpell(player, wordsToProcess);
+		// Si el resultado es TALKACTION_BREAK, el hechizo se lanzó correctamente
+	if (result == TALKACTION_BREAK) {
+		// En el caso de éxito, el juego procesa el texto del hechizo
+		player->saySpell(TALKTYPE_SPELL_USE, wordsToProcess, false);
+		Lua::pushBoolean(L, true);
+	} else {
+		Lua::pushBoolean(L, false);
 	}
 
 	return 1;
